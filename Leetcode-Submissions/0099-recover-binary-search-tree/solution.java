@@ -14,39 +14,57 @@
  * }
  */
 class Solution {
-    TreeNode first;
-    TreeNode middle;
-    TreeNode prev;
-    TreeNode last;
+    TreeNode first = null;
+    TreeNode middle = null;
+    TreeNode last = null;
+    TreeNode prev = null;
     public void recoverTree(TreeNode root) {
-       helper(root);
-       if(first!=null && last!=null){
-        int t = first.val;
-        first.val = last.val;
-        last.val = t;
-       }
-       else if(first!=null && middle!=null){
-        int t = first.val;
-        first.val = middle.val;
-        middle.val = t;
-       }
-    }
-    void helper(TreeNode node){
-        if(node == null) return;
-        
-        helper(node.left); 
-
-        if(prev!=null && prev.val > node.val){
-            if(first == null){
-                first = prev;
-                middle = node;
+        TreeNode curr = root;
+        while(curr!=null){
+            if(curr.left==null){
+                checkInversion(curr);
+                curr=curr.right;
             }
             else{
+                //Find the in-order predecessor
+                TreeNode predecessor = curr.left;
+                while (predecessor.right != null && predecessor.right != curr) {
+                    predecessor = predecessor.right;
+                }
+                if(predecessor.right==null){
+                    predecessor.right=curr;
+                    curr=curr.left;
+                }
+                else {
+                    // Thread already exists; break it to restore tree structure
+                    predecessor.right = null;
+                    
+                    checkInversion(curr);
+                    curr = curr.right;
+                }
+            }
+
+        }
+        if (first != null && last != null) {
+            int t = first.val;
+            first.val = last.val;
+            last.val = t;
+        } else if (first != null && middle != null) {
+            int t = first.val;
+            first.val = middle.val;
+            middle.val = t;
+        }
+        
+    }
+    private void checkInversion(TreeNode node) {
+        if (prev != null && prev.val > node.val) {
+            if (first == null) {
+                first = prev;
+                middle = node;
+            } else {
                 last = node;
             }
         }
         prev = node;
-
-        helper(node.right);
     }
 }
